@@ -6,6 +6,86 @@ const Header = (props) => {
   )
 }
 
+const Button = (props) => {
+  return (
+    <button onClick={props.call}> {props.name} </button>
+  )
+}
+
+const ShowVotes = (props) => {
+  return (
+    <p>has {props.num} votes</p>
+  )
+}
+
+const MostVotes = ({joke,votes}) => {
+  if (votes === 0) {
+    return (
+      <p>No votes recorded.</p>
+    )
+  }
+  
+  return (
+    <div>
+      <p>{joke}</p>
+      <ShowVotes num={votes}/>
+    </div>
+  )
+}
+
+const App = () => {
+  const anecdotes = [
+    'If it hurts, do it more often.',
+    'Adding manpower to a late software project makes it later!',
+    'The first 90 percent of the code accounts for the first 10 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+    'Premature optimization is the root of all evil.',
+    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
+    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
+    'The only way to go fast, is to go well.'
+  ]
+   
+  const [selected, setSelected] = useState(0)
+  const [points, setPoints] = useState(Array(anecdotes.length).fill(0))
+
+  const nextJoke = () => {
+    const x = Math.floor((Math.random() * anecdotes.length))
+    setSelected(x)
+  }
+
+  const Vote = () => {
+    const newPoints = [...points]
+    newPoints[selected] += 1
+    setPoints(newPoints)
+  }
+
+  const MostVoted = () => {
+    const max = Math.max(...points)
+    const index = points.indexOf(max)
+    return index
+  }
+
+  return (
+    <div>
+      <Header text="Anecdote of the day"/>
+      {anecdotes[selected]}
+      <ShowVotes num={points[selected]}/>
+      <Button call={Vote} name="vote"/>
+      <Button call={nextJoke} name="next anecdote"/>
+      <Header text="Anecdote with the most votes"/>
+      <MostVotes joke={anecdotes[MostVoted()]} votes={points[MostVoted()]}/>
+    </div>
+  )
+}
+
+export default App
+/* unicafe app
+const Header = (props) => {
+  return (
+    <h1>{props.text}</h1>
+  )
+}
+
 const Statistics = (props) => {
   if (props.array[0].num === 0 && props.array[1].num === 0 && props.array[2].num === 0) {
     return (
@@ -71,7 +151,6 @@ const App = () => {
 
       <Header text="statistics"/>
       <Statistics array={statistics}/>
-      {/*
       <StatisticLine text="good" value={good}/>
       <StatisticLine text="neutral" value={neutral}/>
       <StatisticLine text="bad" value={bad}/>
@@ -79,15 +158,12 @@ const App = () => {
       <StatisticLine text="average" value={ave}/>
       <StatisticLine text="positive" value={pos+" %"}/>
 
-      */}
       </div>
       )
     }
-    
-
-export default App;
-
-/*
+  
+*/
+/* Course info app
 
 const Header = (props) => {
   return (
