@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
+import styled from 'styled-components'
 
 const Filter = ({searchTerm,handleSearchChange}) => {
   return (
@@ -52,6 +52,50 @@ const PersonInfo = ({person, deleteEntry}) => {
   )
 }
 
+const NotificationSuccess = styled.div`
+  background-color: #58cc02;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 50%;
+`
+
+const NotificationError = styled.div`
+  background-color: #ff4b4b;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 50%;
+`
+
+const Notification = ({message, statusCode}) => {
+  if (message === null) {
+    return null;
+  }
+  if (statusCode === 0) {
+    return (
+      <NotificationSuccess>
+        {message}
+      </NotificationSuccess>
+    )
+  }
+  else if (statusCode === 1) {
+    return (
+      <NotificationError>
+        {message}
+      </NotificationError>
+    )
+  }
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
 
@@ -67,6 +111,8 @@ const App = () => {
   const [newPhone, setNewPhone] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [showMatch, setShowMatch] = useState(true)
+  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [statusCode, setStatusCode] = useState(0)
 
   const personsToShow = showMatch
   ? persons.filter(person => person.name && person.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -78,8 +124,6 @@ const App = () => {
     if (!nameExists) {
       const personObject = { name: newName, number: newPhone }
       setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewPhone('')
 
       personService
       .updateData(personObject)
@@ -99,10 +143,29 @@ const App = () => {
           setPersons(persons.map(person => person.id !== id ? person : response.data))
         })
         .catch((error) => {
-          console.log('Error occurred while updating a phone number', error)
+          setStatusCode(1)
+          setNotificationMessage(`Information on ${newName} has already been removed from server.`, statusCode)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
+          setNewName('')
+          setNewPhone('')
+
+          personService
+          .getData()
+          .then(response => {
+            setPersons(response.data)
+          })
         })
       }
     }
+    setStatusCode(0)
+    setNotificationMessage(`Added '${newName}'`, statusCode)
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
+    setNewName('')
+    setNewPhone('')
   }
 
   const deletePerson = (id, name) => {
@@ -135,6 +198,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter searchTerm={searchTerm} handleSearchChange={handleSearchChange}/>
       <h2>Add a new contact</h2>
+      <Notification message={notificationMessage} statusCode={statusCode}/>
       <PersonForm
         addPerson={addPerson}
         newName={newName}
