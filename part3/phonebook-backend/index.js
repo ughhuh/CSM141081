@@ -1,8 +1,11 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 app.use(express.json())
 app.use(morgan('dev'))
+app.use(cors())
+app.use(express.static('build'))
 
 morgan.token('req-body', (req) => JSON.stringify(req.body))
 
@@ -57,8 +60,9 @@ app.delete('/api/persons/:id', (request, response) => {
   })
 
 // Start the server
-app.listen(3001, () => {
-    console.log('Server is running on port 3001')
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
 
 // Generate a unique ID for a new contact
