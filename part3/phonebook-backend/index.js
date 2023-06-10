@@ -1,6 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+require('dotenv').config()
+const Person = require('./models/person')
+const person = require('./models/person')
+
 const app = express()
 app.use(express.json())
 app.use(morgan('dev'))
@@ -8,6 +12,12 @@ app.use(cors())
 app.use(express.static('build'))
 
 morgan.token('req-body', (req) => JSON.stringify(req.body))
+
+const PORT = process.env.PORT
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
 
 app.use(
   morgan(':method :url :status :response-time ms - :res[content-length] :req-body', {
@@ -24,19 +34,29 @@ let phonebookEntries = [
   
 // Display all entries
 app.get('/api/persons', (request, response) => {
-    response.json(phonebookEntries)
+  Person
+    .find({})
+    .then(persons => {
+      response.json(persons)
+    })
+    .catch(error => {
+      response.status(500).json({ error: 'Something went wrong!' })
+    })
 })
 
-// RDisplay a specific entry
+// Display a specific entry
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = phonebookEntries.find(person => person.id === id)
-    
-    if (person) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).json({ error: 'Person not found' })
+      }
+    })
+    .catch(error => {
+      response.status(500).json({ error: 'Something went wrong!' })
+    })
 })
 
 // Display number of entries + timestamp
@@ -53,16 +73,10 @@ app.get('/api/info', (request, response) => {
 
 // Delete a person entry
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    phonebookEntries = phonebookEntries.filter(person => person.id !== id)
-  
-    response.status(204).end()
-  })
+  const id = Number(request.params.id)
+  phonebookEntries = phonebookEntries.filter(person => person.id !== id)
 
-// Start the server
-const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  response.status(204).end()
 })
 
 // Generate a unique ID for a new contact
@@ -84,19 +98,19 @@ app.post('/api/persons', (request, response) => {
         })
     }
     // Throw error if the name already exists
-    if (phonebookEntries.find(person => person.name === body.name)) {
-        return response.status(400).json({ 
-          error: 'The name already exists in the phonebook!' 
-        })
-    }
+    //if (phonebookEntries.find(person => person.name === body.name)) {
+      //  return response.status(400).json({ 
+        //  error: 'The name already exists in the phonebook!' 
+        //})
+    //}
     // Create a person object with an ID
-    const person = {
+    const person = new Person({
       id: generateId(),
       name: body.name,
       number: body.number
-    }
+    })
     // Add person to the phonebook
-    phonebookEntries = phonebookEntries.concat(person)
-    
-    response.json(person)
+    person.save().then(person => {
+      response.json(person)
+    })
 })

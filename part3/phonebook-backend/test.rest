@@ -1,11 +1,11 @@
 
-GET http://localhost:3001/api/persons/
+GET https://quiet-surf-6831.fly.dev/api/persons/64849fe253196b4f2bce3945
 
 ###
-POST http://localhost:3001/api/persons/ HTTP/1.1
+POST https://quiet-surf-6831.fly.dev/api/persons HTTP/1.1
 content-type: application/json
 
 {
-    "name": "John Doe",
-    "number": "1234567890"
+    "name": "Trial Error",
+    "number": "0123456789"
 }
