@@ -11,9 +11,9 @@ const deleteData = id => {
     const url = `${baseURL}/${id}`
     return axios.delete(url)
 }
-const modifyData  = (id, changedNote) => {
+const modifyData  = (id, changedPerson) => {
     const url = `${baseURL}/${id}`
-    return axios.put(url, changedNote)
+    return axios.put(url, changedPerson)
 }
 
 export default {getData, updateData, deleteData, modifyData}

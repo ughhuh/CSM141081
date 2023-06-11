@@ -120,6 +120,7 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
+
     const nameExists = persons.some((person) => person.name === newName)
     if (!nameExists) {
       const personObject = { name: newName, number: newPhone }
@@ -132,10 +133,11 @@ const App = () => {
       })
     }
     else {
+      const nameExists = persons.find(person => person.name === newName)
+
       if (window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)) {
-        const nameExists = persons.find(person => person.name === newName)
-        const id = nameExists ? nameExists.id : null;
-        const changedEntry = {...nameExists, number: newPhone}
+        const id = nameExists.id;
+        const changedEntry = { ...nameExists, number: newPhone };
       
         personService
         .modifyData(id,changedEntry)
@@ -144,12 +146,10 @@ const App = () => {
         })
         .catch((error) => {
           setStatusCode(1)
-          setNotificationMessage(`Information on ${newName} has already been removed from server.`, statusCode)
+          setNotificationMessage(`Information on ${newName} has already been removed from server.`)
           setTimeout(() => {
             setNotificationMessage(null)
           }, 5000)
-          setNewName('')
-          setNewPhone('')
 
           personService
           .getData()
@@ -157,15 +157,12 @@ const App = () => {
             setPersons(response.data)
           })
         })
-      }
-    }
-    setStatusCode(0)
-    setNotificationMessage(`Added '${newName}'`, statusCode)
-    setTimeout(() => {
-      setNotificationMessage(null)
-    }, 5000)
-    setNewName('')
-    setNewPhone('')
+      } else {
+        setNewName('')
+        setNewPhone('')
+      }}
+      setNewName('')
+      setNewPhone('')
   }
 
   const deletePerson = (id, name) => {
@@ -174,6 +171,8 @@ const App = () => {
       .deleteData(id)
       .then(() => {
         setPersons(persons.filter(person => person.id !== id))
+        setNewName('')
+        setNewPhone('')
       })
       .catch((error) => {
         console.log('Error occurred while deleting a contact', error)

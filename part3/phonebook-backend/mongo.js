@@ -15,7 +15,6 @@ mongoose.connect(url)
 
 // Define contact schema
 const personSchema = new mongoose.Schema({
-    id: Number,
     name: String,
     number: String,
 })
@@ -43,16 +42,8 @@ if (process.argv.length === 3) { // Print all database entries
       })
   }
 else if (process.argv.length>3) { // Add a new contact
-    // Generate a unique ID for a new contact
-    const generateId = () => {
-        const min = 1
-        const max = 1000000
-        const randomId = Math.floor(Math.random() * (max - min + 1)) + min
-        return randomId
-    }
     // Define person object
     const person = new Person({
-    id: generateId(),
     name: process.argv[3],
     number: process.argv[4]
     })

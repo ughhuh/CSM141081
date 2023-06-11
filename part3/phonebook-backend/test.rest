@@ -1,5 +1,7 @@
 
 GET https://quiet-surf-6831.fly.dev/api/persons/64849fe253196b4f2bce3945
+###
+GET http://localhost:3001/api/persons/
 
 ###
 POST https://quiet-surf-6831.fly.dev/api/persons HTTP/1.1
@@ -9,3 +11,14 @@ content-type: application/json
     "name": "Trial Error",
     "number": "0123456789"
 }
+###
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+    "name": "ABC",
+    "number": "0123456789"
+}
+
+###
+DELETE http://localhost:3001/api/persons/648574856fe0ef2cca4c7ec0
