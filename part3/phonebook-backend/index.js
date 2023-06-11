@@ -9,23 +9,14 @@ app.use(express.json())
 app.use(morgan('dev'))
 app.use(cors())
 app.use(express.static('build'))
-
 morgan.token('req-body', (req) => JSON.stringify(req.body))
-
-// Error handker middleware
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } 
-  next(error)
-}
 
 app.use(
   morgan(':method :url :status :response-time ms - :res[content-length] :req-body', {
     skip: (req) => req.method !== 'POST', // Only log POST requests
   })
 )
+
 // Display all entries
 app.get('/api/persons', (request, response, next) => {
   Person
@@ -76,39 +67,53 @@ app.delete('/api/persons/:id', (request, response) => {
 
 // Add a new person
 app.post('/api/persons', (request, response, next) => {
-    const body = request.body
-    
-    // Throw error if name or number is missing
-    if (!body.name || !body.number) {
-        return response.status(400).json({ 
-            error: 'The name or number is missing!' 
-        })
-    }
-    // Create a person object with an ID
-    const person = new Person({
-      name: body.name,
-      number: body.number
+  const body = request.body
+  // Throw error if name or number is missing
+  if (!body.name || !body.number) {
+    return response.status(400).json({ 
+      error: 'The name or number is missing!' 
     })
-    // Add person to the phonebook
-    person.save().then(person => {
-      response.json(person)
+  }
+  // Create a person object with an ID
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  })
+
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
     })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const body = request.body
-    
-    const person = {
-      name: body.name,
-      number: body.number,
-    }
+    const {name, number} = request.body
 
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(
+      request.params.id, 
+      {name, number}, 
+      { new: true, runValidators: true, context: 'query' })
       .then(updatedPerson => {
         response.json(updatedPerson)
       })
       .catch(error => next(error))
 })
+
+// Error handler middleware
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+
+  response.status(500).json({ error: 'An unexpected error occurred' })
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 // Start the server

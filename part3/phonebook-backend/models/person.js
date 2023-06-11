@@ -17,9 +17,21 @@ mongoose.connect(url)
 
 // Define contact schema
 const personSchema = new mongoose.Schema({
-    id: Number,
-    name: String,
-    number: String,
+  name: {
+    type: String,
+    required: true,
+    minlength: 3 // Minimum length of 3 characters
+  },
+  number: {
+    type: String,
+    required: true,
+    minlength: 8,
+    validate: { // Validate phone number formatting
+      validator: function (value) {
+        return /^\d{2,3}-\d+$/.test(value)
+      }
+    }
+  }
 })
 
 // Remove id and v from database entries
