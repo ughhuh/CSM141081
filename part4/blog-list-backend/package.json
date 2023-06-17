@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest --verbose"
   },
   "author": "Alena Galysheva",
   "license": "MIT",
@@ -16,6 +17,10 @@
     "mongoose": "^7.3.0"
   },
   "devDependencies": {
+    "jest": "^29.5.0",
     "nodemon": "^2.0.22"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
