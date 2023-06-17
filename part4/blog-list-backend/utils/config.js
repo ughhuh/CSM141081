@@ -1,9 +1,9 @@
-require('dotenv').config()
+require('dotenv').config({ path: '../.env' }) // I had to hardcode it, dotenv refused to find the file
 
-const PORT = 3003
-const MONGODB_URI = process.env.MONGODB_URI
+const PORT = process.env.PORT
 
-module.exports = {
-    MONGODB_URI,
-    PORT
-}
+const MONGODB_URI = process.env.NODE_ENV === 'test' 
+  ? process.env.TEST_MONGODB_URI
+  : process.env.MONGODB_URI
+
+module.exports = {MONGODB_URI, PORT}
