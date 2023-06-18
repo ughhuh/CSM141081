@@ -1,16 +1,7 @@
 const blogsRouter = require("express").Router()
 require("dotenv").config({ path: "../.env" })
 const Blog = require("../models/blog")
-const User = require("../models/user")
 const jwt = require("jsonwebtoken")
-
-const getTokenFrom = request => {
-	const authorization = request.get("authorization")
-	if (authorization && authorization.startsWith("Bearer ")) {
-		return authorization.replace("Bearer ", "")
-	}
-	return null
-}
 
 blogsRouter.get("/", async (request, response) => {
 	const blogs = await Blog
@@ -20,23 +11,18 @@ blogsRouter.get("/", async (request, response) => {
 })
   
 blogsRouter.post("/", async (request, response) => {
-	const { title, author, url, likes } = request.body
+	const { title, url, likes } = request.body
 
 	if (!title || !url) {
 		return response.status(400).json({ error: "Title or URL is missing" })
 	}
 
-	const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+	const decodedToken = jwt.verify(request.token, process.env.SECRET)
 	if (!decodedToken.id) {
 		return response.status(401).json({ error: "token invalid" })
 	}
-  
-	const user = await User.findById(decodedToken.id)
-	// const user = await User.findOne({name: author})
-
-	if (!user) {
-		return response.status(400).json({ error: "User not found" })
-	}	
+	
+	const user = request.user.id
 
 	const blog = new Blog({
 		title: title,
@@ -54,6 +40,23 @@ blogsRouter.post("/", async (request, response) => {
 })
 
 blogsRouter.delete("/:id", async (request, response) => {
+	const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+	if (!decodedToken.id) {
+		return response.status(401).json({ error: "token invalid" })
+	}
+  
+	const blog = await Blog.findById(request.params.id)
+	const user = request.user.id
+
+	if (!blog) {
+		return response.status(400).json({ error: "Blog not found" })
+	}
+
+	if (user.toString() !== decodedToken.id) {
+		return response.status(401).json({ error: "You are not authorized to delete this blog" })
+	}
+	
 	await Blog.findByIdAndRemove(request.params.id)
 	response.status(204).end()
 })
