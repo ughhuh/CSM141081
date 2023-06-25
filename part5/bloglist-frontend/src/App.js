@@ -70,16 +70,47 @@ const App = () => {
     })
   }
 
-  const blogForm = () => {
+  const likeBlog = (id, updatedLikes) => {
+    const blog = { ...blogs.find((blog) => blog.id === id), likes: updatedLikes }
+    const updatedBlog = {
+      user: blog.user.id,
+      likes: blog.likes,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url
+    }
+    
+    blogService
+    .update(id, updatedBlog)
+      .then((returnedBlog) => {
+        setBlogs((blogs) =>
+          blogs.map((blog) => (blog.id === id ? returnedBlog : blog))
+        )
+      })
+      .catch((error) => {
+        console.log("didn't work!")
+      })
+  }
 
+  const blogForm = () => {
     return (
-      <Togglable buttonLabel='new note'>
+      <Togglable buttonOpen='new note' buttonClose='cancel'>
         <BlogForm
           createBlog={addBlog}
         />
       </Togglable>
     )
   }
+
+  const blogInfo = () => {
+    return (
+      <div>
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} updateBlog={likeBlog}/>
+        )}
+      </div>
+    )
+  }  
   
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -150,9 +181,7 @@ const App = () => {
       <p>{user.name} logged in</p>
       <button onClick={handleLogout}>logout</button>
       {blogForm()}
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {blogInfo()}
     </div>
   )
 
