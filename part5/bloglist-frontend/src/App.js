@@ -9,7 +9,7 @@ import Togglable from './components/Togglable'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [blogsVisible, setBlogsVisible] = useState(false)
-  
+
   //const [newBlog, setNewBlog] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
@@ -17,14 +17,14 @@ const App = () => {
   const [notificationMessage, setnotificationMessage] = useState(null)
   const [statusCode, setStatusCode] = useState(null)
 
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -33,41 +33,41 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
       if (blogService.setToken) {
-        blogService.setToken(user.token);
+        blogService.setToken(user.token)
       } else {
-        console.error('blogService.setToken is not defined');
+        console.error('blogService.setToken is not defined')
       }
     }
   }, [])
 
   const addBlog = (blogObject) => {
     blogService
-    .create(blogObject)
+      .create(blogObject)
       .then(returnedBlog => {
-      setBlogs(blogs.concat(returnedBlog))
-      setStatusCode(0)
-      setnotificationMessage(
-        `A new blog "${newTitle}" by ${newAuthor} was added!`
-      )
-      setTimeout(() => {
-        setnotificationMessage(null)
-        setStatusCode(null)
-      }, 5000)
-      setNewTitle('')
-      setNewAuthor('')
-      setNewUrl('')
-      setBlogsVisible(false)
-    })
-    .catch(error => {
-      setStatusCode(1)
-      setnotificationMessage(
-        `Error: ${error}`
-      )
-      setTimeout(() => {
-        setnotificationMessage(null)
-        setStatusCode(null)
-      }, 5000)
-    })
+        setBlogs(blogs.concat(returnedBlog))
+        setStatusCode(0)
+        setnotificationMessage(
+          `A new blog "${newTitle}" by ${newAuthor} was added!`
+        )
+        setTimeout(() => {
+          setnotificationMessage(null)
+          setStatusCode(null)
+        }, 5000)
+        setNewTitle('')
+        setNewAuthor('')
+        setNewUrl('')
+        setBlogsVisible(false)
+      })
+      .catch(error => {
+        setStatusCode(1)
+        setnotificationMessage(
+          `Error: ${error}`
+        )
+        setTimeout(() => {
+          setnotificationMessage(null)
+          setStatusCode(null)
+        }, 5000)
+      })
   }
 
   const likeBlog = (id, updatedLikes) => {
@@ -79,17 +79,31 @@ const App = () => {
       title: blog.title,
       url: blog.url
     }
-    
+
     blogService
-    .update(id, updatedBlog)
+      .update(id, updatedBlog)
       .then((returnedBlog) => {
         setBlogs((blogs) =>
           blogs.map((blog) => (blog.id === id ? returnedBlog : blog))
         )
       })
       .catch((error) => {
-        console.log("didn't work!")
+        console.log(error)
       })
+  }
+
+  const deleteBlog = (blog) => {
+    if (window.confirm(`Delete ${blog.title} by ${blog.author}?`)) {
+      const id = blog.id
+      blogService
+        .deleteEntry(id, user.token)
+        .then(() => {
+          setBlogs(blogs.filter((blog) => blog.id !== id))
+        })
+        .catch((error) => {
+          console.log('Error occurred while deleting a blog', error)
+        })
+    }
   }
 
   const blogForm = () => {
@@ -103,24 +117,25 @@ const App = () => {
   }
 
   const blogInfo = () => {
+    blogs.sort((a, b) => b.likes - a.likes)
     return (
       <div>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={likeBlog}/>
+          <Blog key={blog.id} blog={blog} updateBlog={likeBlog} deleteBlog={deleteBlog}/>
         )}
       </div>
     )
-  }  
-  
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
-  
+
     try {
       const user = await loginService.login({
         username,
         password,
       })
-  
+
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       setUser(user)
       setUsername('')
@@ -132,47 +147,47 @@ const App = () => {
       }
     } catch (error) {
       setStatusCode(1)
-      setnotificationMessage(`Wrong username or password!`)
+      setnotificationMessage('Wrong username or password!')
       setTimeout(() => {
         setnotificationMessage(null)
         setStatusCode(null)
       }, 5000)
     }
-  };
+  }
 
   const handleLogout = async (event) => {
     event.preventDefault()
-    
+
     window.localStorage.removeItem('loggedBlogappUser')
-    
+
     setUser(null)
   }
 
   const loginForm = () => (
     <div>
-    <h2>log in to application</h2>
-    <form onSubmit={handleLogin}>
-      <div>
+      <h2>log in to application</h2>
+      <form onSubmit={handleLogin}>
+        <div>
         username
           <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
+            type="text"
+            value={username}
+            name="Username"
+            onChange={({ target }) => setUsername(target.value)}
+          />
+        </div>
+        <div>
         password
           <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
-    </form>  
-    </div>    
+            type="password"
+            value={password}
+            name="Password"
+            onChange={({ target }) => setPassword(target.value)}
+          />
+        </div>
+        <button type="submit">login</button>
+      </form>
+    </div>
   )
 
   const blogList = (user) => (
