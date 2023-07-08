@@ -1,11 +1,11 @@
 import styled from 'styled-components'
 
 const Notification = ({ message, statusCode }) => {
-    if (message === null) {
-      return null
-    }
+  if (message === null) {
+    return null
+  }
 
-    const NotificationSuccess = styled.div`
+  const NotificationSuccess = styled.div`
     background-color: #58cc02;
     color: white;
     font-family: 'Roboto', sans-serif;
@@ -17,7 +17,7 @@ const Notification = ({ message, statusCode }) => {
     width: 50%;
     `
 
-    const NotificationError = styled.div`
+  const NotificationError = styled.div`
     background-color: #ff4b4b;
     color: white;
     font-family: 'Roboto', sans-serif;
@@ -29,20 +29,20 @@ const Notification = ({ message, statusCode }) => {
     width: 50%;
     `
 
-    if (statusCode === 0) {
-        return (
-          <NotificationSuccess>
-            {message}
-          </NotificationSuccess>
-        )
-      }
-      else if (statusCode === 1) {
-        return (
-          <NotificationError>
-            {message}
-          </NotificationError>
-        )
-      }
+  if (statusCode === 0) {
+    return (
+      <NotificationSuccess id='success'>
+        {message}
+      </NotificationSuccess>
+    )
   }
-  
+  else if (statusCode === 1) {
+    return (
+      <NotificationError id='error'>
+        {message}
+      </NotificationError>
+    )
+  }
+}
+
 export default Notification

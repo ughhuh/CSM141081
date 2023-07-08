@@ -57,6 +57,11 @@ const App = () => {
         setNewAuthor('')
         setNewUrl('')
         setBlogsVisible(false)
+  
+        // Fetch all blogs again to update the list
+        blogService.getAll().then(updatedBlogs => {
+          setBlogs(updatedBlogs)
+        })
       })
       .catch(error => {
         setStatusCode(1)
@@ -108,7 +113,7 @@ const App = () => {
 
   const blogForm = () => {
     return (
-      <Togglable buttonOpen='new note' buttonClose='cancel'>
+      <Togglable buttonOpen='new blog' buttonClose='cancel'>
         <BlogForm
           createBlog={addBlog}
         />
@@ -121,7 +126,7 @@ const App = () => {
     return (
       <div>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} updateBlog={likeBlog} deleteBlog={deleteBlog}/>
+          <Blog key={blog.id} user={user} blog={blog} updateBlog={likeBlog} deleteBlog={deleteBlog}/>
         )}
       </div>
     )
@@ -170,6 +175,7 @@ const App = () => {
         <div>
         username
           <input
+            id='username'
             type="text"
             value={username}
             name="Username"
@@ -179,13 +185,14 @@ const App = () => {
         <div>
         password
           <input
+            id='password'
             type="password"
             value={password}
             name="Password"
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type="submit">login</button>
+        <button id='login-button' type="submit">login</button>
       </form>
     </div>
   )
@@ -194,7 +201,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       <p>{user.name} logged in</p>
-      <button onClick={handleLogout}>logout</button>
+      <button id='logout-button' onClick={handleLogout}>logout</button>
       {blogForm()}
       {blogInfo()}
     </div>

@@ -1,6 +1,6 @@
 import Togglable from './Togglable'
 
-const Blog = ({ blog, updateBlog, deleteBlog }) => {
+const Blog = ({ user, blog, updateBlog, deleteBlog }) => {
 
   const likeBlog = (event) => {
     event.preventDefault()
@@ -20,8 +20,10 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
     marginBottom: 5
   }
 
+  const showDeleteButton = user && blog.user && user.username === blog.user.username
+
   return (
-    <div style={blogStyle}>
+    <div className="blog" style={blogStyle}>
       <div>
         <p className="blogTitle">{blog.title}</p><p className="blogAuthor">{blog.author}</p>
         <Togglable buttonOpen='view' buttonClose='hide' className="toggle">
@@ -29,7 +31,7 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
           <br />
           likes: {blog.likes}<button onClick={likeBlog}>like</button>
           {blog.user && <div>{blog.user.name}</div>}
-          <button onClick={deleteEntry}>delete</button>
+          {showDeleteButton && <button onClick={deleteEntry}>delete</button>}
         </Togglable>
       </div>
     </div>
