@@ -23,11 +23,11 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title} {blog.author}
-        <Togglable buttonOpen='view' buttonClose='hide'>
+        <p className="blogTitle">{blog.title}</p><p className="blogAuthor">{blog.author}</p>
+        <Togglable buttonOpen='view' buttonClose='hide' className="toggle">
           {blog.url}
           <br />
-            likes: {blog.likes} <button onClick={likeBlog}>like</button>
+          likes: {blog.likes}<button onClick={likeBlog}>like</button>
           {blog.user && <div>{blog.user.name}</div>}
           <button onClick={deleteEntry}>delete</button>
         </Togglable>
